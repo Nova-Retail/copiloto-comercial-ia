@@ -31,7 +31,7 @@ export default function ClientsPage() {
     setClients((prev) => [client, ...prev])
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete(id: number) {
     await fetch(`/api/clients/${id}`, { method: 'DELETE' })
     setClients((prev) => prev.filter((c) => c.id !== id))
     if (selectedClient?.id === id) setSelectedClient(null)
