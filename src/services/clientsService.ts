@@ -1,38 +1,59 @@
 import { prisma } from '@/lib/prisma'
-import { Client } from '@/types'
+import { Customer, Client } from '@/types'
 
-type PrismaClientModel = Awaited<ReturnType<typeof prisma.client.findUniqueOrThrow>>
+type PrismaCustomer = Awaited<ReturnType<typeof prisma.customer.findUniqueOrThrow>>
 
-function toClient(c: PrismaClientModel): Client {
+function toCustomer(c: PrismaCustomer): Client {
   return {
     id: c.id,
-    name: c.name,
+    name: c.fullName,
+    fullName: c.fullName,
     email: c.email,
+    phone: c.phone,
+    city: c.city,
+    country: c.country,
+    registrationDate: c.registrationDate.toISOString(),
+    segment: c.segment,
+    status: c.status,
     frequency: c.frequency as Client['frequency'],
     lastPurchase: c.lastPurchase,
     interest: c.interest,
-    createdAt: c.createdAt.toISOString(),
   }
 }
 
 export async function getAllClients(): Promise<Client[]> {
-  const clients = await prisma.client.findMany({ orderBy: { createdAt: 'desc' } })
-  return clients.map(toClient)
+  const customers = await prisma.customer.findMany({
+    orderBy: { registrationDate: 'desc' },
+  })
+  return customers.map(toCustomer)
 }
 
-export async function getClientById(id: string): Promise<Client | null> {
-  const client = await prisma.client.findUnique({ where: { id } })
-  if (!client) return null
-  return toClient(client)
+export async function getClientById(id: number): Promise<Client | null> {
+  const customer = await prisma.customer.findUnique({ where: { id } })
+  if (!customer) return null
+  return toCustomer(customer)
 }
 
 export async function createClient(
-  data: Omit<Client, 'id' | 'createdAt'>
+  data: Omit<Customer, 'id' | 'registrationDate'>
 ): Promise<Client> {
-  const client = await prisma.client.create({ data })
-  return toClient(client)
+  const customer = await prisma.customer.create({
+    data: {
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone,
+      city: data.city,
+      country: data.country,
+      segment: data.segment,
+      status: data.status ?? 'activo',
+      frequency: data.frequency,
+      lastPurchase: data.lastPurchase,
+      interest: data.interest,
+    },
+  })
+  return toCustomer(customer)
 }
 
-export async function deleteClient(id: string): Promise<void> {
-  await prisma.client.delete({ where: { id } })
+export async function deleteClient(id: number): Promise<void> {
+  await prisma.customer.delete({ where: { id } })
 }
