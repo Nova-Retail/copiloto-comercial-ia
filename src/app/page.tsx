@@ -7,20 +7,17 @@ import { ArrowRight } from 'lucide-react'
 export default async function DashboardPage() {
   const clients = await getAllClients()
 
+  const scores = clients.map((c) => calculateScore(c.frequency, c.lastPurchase))
+
   const avgScore =
     clients.length > 0
-      ? Math.round(
-          clients.reduce(
-            (sum, c) => sum + calculateScore(c.frequency, c.lastPurchase).score,
-            0
-          ) / clients.length
-        )
+      ? Math.round(scores.reduce((sum, s) => sum + s.score, 0) / clients.length)
       : 0
 
   const highFrequency = clients.filter((c) => c.frequency === 'HIGH').length
-  const premium = clients.filter(
-    (c) => calculateScore(c.frequency, c.lastPurchase).score >= 80
-  ).length
+  const activos = scores.filter((s) => s.score >= 80).length
+  const enRiesgo = scores.filter((s) => s.score >= 60 && s.score < 80).length
+  const perdidos = scores.filter((s) => s.score < 60).length
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
@@ -33,10 +30,12 @@ export default async function DashboardPage() {
         total={clients.length}
         highFrequency={highFrequency}
         avgScore={avgScore}
-        premium={premium}
+        activos={activos}
+        enRiesgo={enRiesgo}
+        perdidos={perdidos}
       />
 
-      <div className="mt-8 bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="mt-6 bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-900">Clientes recientes</h2>
           <Link
@@ -61,9 +60,7 @@ export default async function DashboardPage() {
                   <p className="text-sm font-medium text-gray-900">{client.name}</p>
                   <p className="text-xs text-gray-400 mt-0.5">{client.interest}</p>
                 </div>
-                <span
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${bgColor} ${color}`}
-                >
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${bgColor} ${color}`}>
                   {label} · {score}
                 </span>
               </div>

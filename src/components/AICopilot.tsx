@@ -121,7 +121,7 @@ export default function AICopilot({ client, onClose }: Props) {
           )}
         </button>
 
-        {!process.env.NEXT_PUBLIC_HAS_OPENAI_KEY && (
+        {!process.env.NEXT_PUBLIC_HAS_ANTHROPIC_KEY && (
           <p className="text-xs text-gray-400 text-center mt-2">
             Modo demo · Configura OPENAI_API_KEY para IA real
           </p>

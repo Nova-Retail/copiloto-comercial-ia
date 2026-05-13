@@ -35,15 +35,9 @@ Cliente inactivo que requiere una estrategia de reactivación. Ofrece valor inme
   return templates[client.frequency] ?? templates.MEDIUM
 }
 
-
 export async function POST(request: NextRequest) {
-  console.log('🔍 API KEY:', process.env.ANTHROPIC_API_KEY ? 'OK' : 'MISSING')
   const client: Client = await request.json()
   const anthropic = getAnthropicClient()
-  console.log('🔍 Cliente Anthropic:', anthropic ? 'creado' : 'null')
-
-
-  
 
   if (!anthropic) {
     return NextResponse.json({ message: generateMockMessage(client) })
@@ -53,7 +47,7 @@ export async function POST(request: NextRequest) {
     const { score, label } = calculateScore(client.frequency, client.lastPurchase)
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 500,
       system: 'Eres un copiloto comercial IA experto en ventas B2B. Generas recomendaciones estratégicas y mensajes comerciales persuasivos en español. Responde siempre con: 1) Recomendación estratégica (2-3 oraciones), 2) Mensaje comercial listo para enviar (tono profesional y persuasivo). Usa formato claro con títulos.',
       messages: [
@@ -72,14 +66,11 @@ Score calculado: ${score}/100 (${label})`,
     })
 
     const text = response.content[0].type === 'text' ? response.content[0].text : null
-    console.log('🤖 Respuesta Claude:', text?.substring(0, 100))
 
     return NextResponse.json({
       message: text ?? generateMockMessage(client),
     })
-  } catch (error) {
-    console.log('❌ Error Anthropic:', error)
-
+  } catch {
     return NextResponse.json({ message: generateMockMessage(client) })
   }
 }
