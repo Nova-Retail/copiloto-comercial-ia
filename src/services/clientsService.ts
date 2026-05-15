@@ -21,11 +21,51 @@ function toCustomer(c: PrismaCustomer): Client {
   }
 }
 
-export async function getAllClients(): Promise<Client[]> {
-  const customers = await prisma.customer.findMany({
-    orderBy: { registrationDate: 'desc' },
-  })
-  return customers.map(toCustomer)
+export interface ClientsResult {
+  clients: Client[]
+  total: number
+  page: number
+  totalPages: number
+}
+
+export async function getAllClients(options?: {
+  page?: number
+  limit?: number
+  search?: string
+}): Promise<ClientsResult> {
+  const page = options?.page ?? 1
+  const limit = options?.limit ?? 25
+  const search = options?.search ?? ''
+  const skip = (page - 1) * limit
+
+  const where = search
+    ? {
+        OR: [
+          { fullName: { contains: search, mode: 'insensitive' as const } },
+          { email: { contains: search, mode: 'insensitive' as const } },
+          { city: { contains: search, mode: 'insensitive' as const } },
+          { country: { contains: search, mode: 'insensitive' as const } },
+          { interest: { contains: search, mode: 'insensitive' as const } },
+        ],
+      }
+    : {}
+
+  const [customers, total] = await Promise.all([
+    prisma.customer.findMany({
+      where,
+      orderBy: { registrationDate: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.customer.count({ where }),
+  ])
+
+  return {
+    clients: customers.map(toCustomer),
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  }
 }
 
 export async function getClientById(id: number): Promise<Client | null> {

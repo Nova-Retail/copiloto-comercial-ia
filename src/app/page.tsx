@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
 export default async function DashboardPage() {
-  const clients = await getAllClients()
-
+  const { clients } = await getAllClients()
   const scores = clients.map((c) => calculateScore(c.frequency, c.lastPurchase))
 
   const avgScore =

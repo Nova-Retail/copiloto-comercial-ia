@@ -8,6 +8,7 @@ import { Bot, Trash2, X, MapPin, Phone, Mail, Calendar, Tag } from 'lucide-react
 interface Props {
   clients: Client[]
   loading: boolean
+  total: number
   selectedId: number | null
   onSelect: (client: Client) => void
   onDelete: (id: number) => void
@@ -20,7 +21,7 @@ const freqColor: Record<string, string> = {
   LOW: 'bg-red-100 text-red-700',
 }
 
-export default function ClientsTable({ clients, loading, selectedId, onSelect, onDelete }: Props) {
+export default function ClientsTable({ clients, loading, total, selectedId, onSelect, onDelete }: Props) {
   const [detailClient, setDetailClient] = useState<Client | null>(null)
 
   if (loading) {
@@ -40,10 +41,10 @@ export default function ClientsTable({ clients, loading, selectedId, onSelect, o
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-900">
-            {clients.length} clientes registrados
+            {total} clientes registrados
           </h2>
           <span className="text-xs text-gray-400 hidden sm:block">
-            Haz clic en el nombre para ver detalle · "Analizar" para el Copiloto IA
+            Haz clic en el nombre para ver detalle · Analizar para el Copiloto IA
           </span>
         </div>
 
@@ -131,21 +132,16 @@ export default function ClientsTable({ clients, loading, selectedId, onSelect, o
       {detailClient && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <div>
                 <h2 className="font-semibold text-gray-900">{detailClient.name}</h2>
                 <p className="text-xs text-gray-400 mt-0.5">{detailClient.interest}</p>
               </div>
-              <button
-                onClick={() => setDetailClient(null)}
-                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-              >
+              <button onClick={() => setDetailClient(null)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
                 <X size={18} />
               </button>
             </div>
 
-            {/* Score */}
             <div className="px-6 py-4 border-b border-gray-100">
               {(() => {
                 const { score, label, bgColor, color } = calculateScore(detailClient.frequency, detailClient.lastPurchase)
@@ -162,7 +158,6 @@ export default function ClientsTable({ clients, loading, selectedId, onSelect, o
               })()}
             </div>
 
-            {/* Datos completos */}
             <div className="px-6 py-4 space-y-3">
               {detailClient.email && (
                 <div className="flex items-center gap-3 text-sm text-gray-600">
@@ -198,7 +193,6 @@ export default function ClientsTable({ clients, loading, selectedId, onSelect, o
               </div>
             </div>
 
-            {/* Footer */}
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
               <button
                 onClick={() => setDetailClient(null)}

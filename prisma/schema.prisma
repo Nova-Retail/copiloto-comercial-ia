@@ -19,6 +19,8 @@ model Profile {
 
   orders        Order[]
   opportunities Opportunity[]
+
+  @@map("Profiles")
 }
 
 enum Role {
@@ -41,19 +43,29 @@ model Customer {
   registrationDate DateTime  @default(now())
   segment          String?
   status           String    @default("activo")
-  frequency        Frequency @default(LOW)
+  frequency        String @default("LOW")
   lastPurchase     Int       @default(30)
   interest         String    @default("")
 
   orders            Order[]
   opportunities     Opportunity[]
   aiRecommendations AiRecommendation[]
+
+  @@map("Customers")
 }
 
-enum Frequency {
-  LOW
-  MEDIUM
-  HIGH
+// =====================================================
+// CATEGORÍAS
+// =====================================================
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+
+  products Product[]
+
+  @@map("Categories")
 }
 
 // =====================================================
@@ -62,16 +74,18 @@ enum Frequency {
 
 model Product {
   id         Int      @id @default(autoincrement())
-  externalId Int?
   name       String
-  category   String?
   price      Decimal? @db.Decimal(10, 2)
   stock      Int      @default(0)
   imageUrl   String?
   rating     Decimal? @db.Decimal(3, 2)
+  categoryId Int? @map("category_id")
 
+  category          Category?        @relation(fields: [categoryId], references: [id])
   orderItems        OrderItem[]
   aiRecommendations AiRecommendation[]
+
+  @@map("Products")
 }
 
 // =====================================================
@@ -89,6 +103,8 @@ model Order {
   customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
   salesUser  Profile?    @relation(fields: [salesUserId], references: [id])
   orderItems OrderItem[]
+
+  @@map("Orders")
 }
 
 // =====================================================
@@ -104,6 +120,8 @@ model OrderItem {
 
   order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product? @relation(fields: [productId], references: [id])
+
+  @@map("OrderItem")
 }
 
 // =====================================================
@@ -122,6 +140,8 @@ model Opportunity {
 
   customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   assignedUser Profile? @relation(fields: [assignedUserId], references: [id])
+
+  @@map("Opportunity")
 }
 
 enum Stage {
@@ -153,4 +173,6 @@ model AiRecommendation {
 
   customer           Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   recommendedProduct Product? @relation(fields: [recommendedProductId], references: [id])
+
+  @@map("AiRecommendation")
 }

@@ -2,11 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Bot, ChevronRight, Zap } from 'lucide-react'
+import { LayoutDashboard, Users, Bot, ChevronRight, Zap, Package, TrendingUp } from 'lucide-react'
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/clients', label: 'Clientes', icon: Users },
+  { href: '/products', label: 'Productos', icon: Package },
+  { href: '/opportunities', label: 'Oportunidades', icon: TrendingUp },
 ]
 
 export default function Sidebar() {
