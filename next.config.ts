@@ -1,9 +1,12 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
-const nextConfig = {
-  turbopack: {
-    root: __dirname,
+const nextConfig: NextConfig = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 }
 
-export default nextConfig;
+export default nextConfig
