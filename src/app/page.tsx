@@ -8,6 +8,7 @@ import { ArrowRight } from 'lucide-react'
 type FreqGroup = { frequency: string; _count: { frequency: number } }
 type PaisGroup = { country: string | null; _count: { country: number } }
 type MesRow = { mes: string; total: number }
+type RecentClient = Awaited<ReturnType<typeof prisma.customer.findMany>>[number]
 
 async function getStats() {
   const [
@@ -129,7 +130,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
         <div className="divide-y divide-gray-50">
-          {stats.recentClients.map((client) => {
+        {stats.recentClients.map((client: RecentClient) => {
             const { score, label, bgColor, color } = calculateScore(
               client.frequency,
               client.lastPurchase
