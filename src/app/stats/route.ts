@@ -83,7 +83,7 @@ export async function GET() {
       pais: p.country ?? 'Desconocido',
       total: p._count.country,
     })),
-    clientesPorMes: clientesPorMes.map(m => ({
+    clientesPorMes: clientesPorMes.map((m: { mes: string; total: number }) => ({
       mes: m.mes,
       total: Number(m.total),
     })),
