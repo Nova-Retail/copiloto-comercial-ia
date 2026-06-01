@@ -5,6 +5,10 @@ import DashboardCharts from '@/components/DashboardCharts'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
+type FreqGroup = { frequency: string; _count: { frequency: number } }
+type PaisGroup = { country: string | null; _count: { country: number } }
+type MesRow = { mes: string; total: number }
+
 async function getStats() {
   const [
     totalClientes,
@@ -27,7 +31,7 @@ async function getStats() {
       take: 8,
       where: { country: { not: null } },
     }),
-    prisma.$queryRaw<{ mes: string; total: number }[]>`
+    prisma.$queryRaw<MesRow[]>`
       SELECT 
         TO_CHAR("registrationDate", 'Mon') as mes,
         COUNT(*)::integer as total
@@ -45,7 +49,7 @@ async function getStats() {
   ])
 
   const freqMap = Object.fromEntries(
-    clientesPorFrecuencia.map((f: { frequency: string; _count: { frequency: number } }) => [f.frequency, f._count.frequency])
+    (clientesPorFrecuencia as FreqGroup[]).map(f => [f.frequency, f._count.frequency])
   )
 
   const high = freqMap['HIGH'] ?? 0
@@ -65,11 +69,11 @@ async function getStats() {
     perdidos: low,
     totalProductos,
     totalOportunidades,
-    clientesPorPais: clientesPorPais.map(p => ({
+    clientesPorPais: (clientesPorPais as PaisGroup[]).map(p => ({
       pais: p.country ?? 'Desconocido',
       total: p._count.country,
     })),
-    clientesPorMes: clientesPorMes.map(m => ({
+    clientesPorMes: (clientesPorMes as MesRow[]).map(m => ({
       mes: m.mes,
       total: Number(m.total),
     })),
@@ -99,7 +103,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI Cards */}
       <DashboardCards
         total={stats.totalClientes}
         highFrequency={stats.highFrequency}
@@ -109,14 +112,12 @@ export default async function DashboardPage() {
         perdidos={stats.perdidos}
       />
 
-      {/* Gráficas */}
       <DashboardCharts
         segmentos={stats.segmentos}
         clientesPorPais={stats.clientesPorPais}
         clientesPorMes={stats.clientesPorMes}
       />
 
-      {/* Clientes recientes */}
       <div className="mt-6 bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-900">Clientes recientes</h2>
