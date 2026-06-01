@@ -55,7 +55,7 @@ export default function Sidebar() {
             <Zap size={14} className="text-indigo-400" />
             <span className="text-xs font-semibold text-indigo-300">NovaRetail</span>
           </div>
-          <p className="text-xs text-slate-400">IA activada · Claude AI</p>
+          <p className="text-xs text-slate-400">IA activada</p>
         </div>
       </div>
     </aside>
