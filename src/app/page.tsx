@@ -45,7 +45,7 @@ async function getStats() {
   ])
 
   const freqMap = Object.fromEntries(
-    clientesPorFrecuencia.map(f => [f.frequency, f._count.frequency])
+    clientesPorFrecuencia.map((f: { frequency: string; _count: { frequency: number } }) => [f.frequency, f._count.frequency])
   )
 
   const high = freqMap['HIGH'] ?? 0
