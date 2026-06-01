@@ -79,7 +79,7 @@ export async function GET() {
     totalProductos,
     totalOportunidades,
     valorOportunidades: Number(valorOportunidades._sum.estimatedValue ?? 0),
-    clientesPorPais: clientesPorPais.map(p => ({
+    clientesPorPais: clientesPorPais.map((p: { country: string | null; _count: { country: number } }) => ({
       pais: p.country ?? 'Desconocido',
       total: p._count.country,
     })),
