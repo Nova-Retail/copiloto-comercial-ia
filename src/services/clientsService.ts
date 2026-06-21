@@ -32,13 +32,17 @@ export async function getAllClients(options?: {
   page?: number
   limit?: number
   search?: string
+  userId?: string | null
+  isAdmin?: boolean
 }): Promise<ClientsResult> {
   const page = options?.page ?? 1
   const limit = options?.limit ?? 25
   const search = options?.search ?? ''
   const skip = (page - 1) * limit
+  const userId = options?.userId
+  const isAdmin = options?.isAdmin ?? false
 
-  const where = search
+  const searchFilter = search
     ? {
         OR: [
           { fullName: { contains: search, mode: 'insensitive' as const } },
@@ -49,6 +53,11 @@ export async function getAllClients(options?: {
         ],
       }
     : {}
+
+  // Si no es admin, solo ve los clientes asignados a su usuario
+  const ownerFilter = !isAdmin && userId ? { assignedUserId: userId } : {}
+
+  const where = { ...searchFilter, ...ownerFilter }
 
   const [customers, total] = await Promise.all([
     prisma.customer.findMany({
@@ -75,7 +84,8 @@ export async function getClientById(id: number): Promise<Client | null> {
 }
 
 export async function createClient(
-  data: Omit<Customer, 'id' | 'registrationDate'>
+  data: Omit<Customer, 'id' | 'registrationDate'>,
+  assignedUserId?: string | null
 ): Promise<Client> {
   const customer = await prisma.customer.create({
     data: {
@@ -89,6 +99,7 @@ export async function createClient(
       frequency: data.frequency,
       lastPurchase: data.lastPurchase,
       interest: data.interest,
+      assignedUserId: assignedUserId ?? null,
     },
   })
   return toCustomer(customer)
