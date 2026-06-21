@@ -55,7 +55,7 @@ export default function ClientsTable({ clients, loading, total, selectedId, onSe
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Cliente</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Frecuencia</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Días sin compra</th>
-                <th className="px-5 py-3 text-left font-medium whitespace-nowrap hidden xl:table-cell">Interés</th>
+                {/* <th className="px-5 py-3 text-left font-medium whitespace-nowrap hidden xl:table-cell">Interés</th> */}
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Score</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Copiloto</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap"></th>
@@ -89,9 +89,9 @@ export default function ClientsTable({ clients, loading, total, selectedId, onSe
                       </span>
                     </td>
                     <td className="px-5 py-4 text-gray-600 whitespace-nowrap">{client.lastPurchase}d</td>
-                    <td className="px-5 py-4 text-gray-600 hidden xl:table-cell">
+                    {/* <td className="px-5 py-4 text-gray-600 hidden xl:table-cell">
                       <span className="truncate block max-w-[180px]">{client.interest}</span>
-                    </td>
+                    </td> */}
                     <td className="px-5 py-4">
                       <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap ${bgColor} ${color}`}>
                         {label} · {score}

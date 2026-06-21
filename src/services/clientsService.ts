@@ -60,21 +60,42 @@ export async function getAllClients(options?: {
   const where = { ...searchFilter, ...ownerFilter }
 
   const [customers, total] = await Promise.all([
-    prisma.customer.findMany({
-      where,
-      orderBy: { registrationDate: 'desc' },
-      skip,
-      take: limit,
-    }),
-    prisma.customer.count({ where }),
-  ])
+  prisma.customer.findMany({
+    where,
+    orderBy: { registrationDate: 'asc' },
+    skip,
+    take: limit,
+  }),
+  prisma.customer.count({ where }),
+])
 
-  return {
-    clients: customers.map(toCustomer),
-    total,
-    page,
-    totalPages: Math.ceil(total / limit),
+const sortedCustomers = customers.sort((a, b) => {
+
+  const score = {
+    HIGH: 3,
+    MEDIUM: 2,
+    LOW: 1
   }
+
+  const diff =
+    score[b.frequency as keyof typeof score] -
+    score[a.frequency as keyof typeof score]
+
+  if (diff !== 0) {
+    return diff
+  }
+
+  return a.lastPurchase - b.lastPurchase
+
+})
+
+return {
+  clients: sortedCustomers.map(toCustomer),
+  total,
+  page,
+  totalPages: Math.ceil(total / limit),
+}
+
 }
 
 export async function getClientById(id: number): Promise<Client | null> {
