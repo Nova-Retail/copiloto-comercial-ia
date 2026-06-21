@@ -1,13 +1,23 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getClient() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  return new OpenAI({ apiKey });
+}
 
 export async function POST(req: Request) {
   try {
     const customerData = await req.json();
+    const client = getClient();
+
+    if (!client) {
+      return NextResponse.json(
+        { error: "OPENAI_API_KEY no configurada" },
+        { status: 503 }
+      );
+    }
 
     const prompt = `
 Eres un copiloto comercial experto en ventas.
@@ -52,12 +62,9 @@ Formato de respuesta:
       temperature: 0.7,
     });
 
-    const content =
-      response.choices[0].message.content;
+    const content = response.choices[0].message.content;
 
-    return NextResponse.json(
-      JSON.parse(content || "{}")
-    );
+    return NextResponse.json(JSON.parse(content || "{}"));
   } catch (error) {
     console.error(error);
 
