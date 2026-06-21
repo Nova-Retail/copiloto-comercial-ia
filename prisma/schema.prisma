@@ -7,109 +7,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =====================================================
-// USUARIOS / PERFILES
-// =====================================================
-
 model Profile {
-  id        String   @id @default(cuid())
-  fullName  String?
-  role      Role     @default(vendedor)
-  createdAt DateTime @default(now())
-
-  orders        Order[]
+  id            String        @id
+  fullName      String?
+  role          Role          @default(vendedor)
+  createdAt     DateTime      @default(now())
+  email         String?
   opportunities Opportunity[]
+  orders        Order[]
 
   @@map("Profiles")
 }
 
-enum Role {
-  admin
-  vendedor
-  gerente
-}
-
-// =====================================================
-// CLIENTES
-// =====================================================
-
 model Customer {
-  id               Int       @id @default(autoincrement())
-  fullName         String
-  email            String?   @unique
-  phone            String?
-  city             String?
-  country          String?
-  registrationDate DateTime  @default(now())
-  segment          String?
-  status           String    @default("activo")
-  frequency        String @default("LOW")
-  lastPurchase     Int       @default(30)
-  interest         String    @default("")
-
-  orders            Order[]
-  opportunities     Opportunity[]
+  id                Int                @id @default(autoincrement())
+  fullName          String
+  email             String?            @unique
+  phone             String?
+  city              String?
+  country           String?
+  registrationDate  DateTime           @default(now())
+  segment           String?
+  status            String             @default("activo")
+  frequency         String             @default("LOW")
+  lastPurchase      Int                @default(30)
+  interest          String             @default("")
+  assignedUserId    String?            @map("assigned_user_id")
   aiRecommendations AiRecommendation[]
+  opportunities     Opportunity[]
+  orders            Order[]
 
   @@map("Customers")
 }
 
-// =====================================================
-// CATEGORÍAS
-// =====================================================
-
 model Category {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
   description String?
-
-  products Product[]
+  products    Product[]
 
   @@map("Categories")
 }
 
-// =====================================================
-// PRODUCTOS
-// =====================================================
-
 model Product {
-  id         Int      @id @default(autoincrement())
-  name       String
-  price      Decimal? @db.Decimal(10, 2)
-  stock      Int      @default(0)
-  imageUrl   String?
-  rating     Decimal? @db.Decimal(3, 2)
-  categoryId Int? @map("category_id")
-
-  category          Category?        @relation(fields: [categoryId], references: [id])
-  orderItems        OrderItem[]
+  id                Int                @id @default(autoincrement())
+  name              String
+  price             Decimal?           @db.Decimal(10, 2)
+  stock             Int                @default(0)
+  imageUrl          String?
+  rating            Decimal?           @db.Decimal(3, 2)
+  categoryId        Int?               @map("category_id")
   aiRecommendations AiRecommendation[]
+  orderItems        OrderItem[]
+  category          Category?          @relation(fields: [categoryId], references: [id])
 
   @@map("Products")
 }
 
-// =====================================================
-// ÓRDENES
-// =====================================================
-
 model Order {
-  id          Int      @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   customerId  Int
-  totalAmount Decimal? @db.Decimal(10, 2)
-  orderDate   DateTime @default(now())
-  status      String   @default("completada")
+  totalAmount Decimal?    @db.Decimal(10, 2)
+  orderDate   DateTime    @default(now())
+  status      String      @default("completada")
   salesUserId String?
-
-  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  salesUser  Profile?    @relation(fields: [salesUserId], references: [id])
-  orderItems OrderItem[]
+  orderItems  OrderItem[]
+  customer    Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  salesUser   Profile?    @relation(fields: [salesUserId], references: [id])
 
   @@map("Orders")
 }
-
-// =====================================================
-// DETALLE DE ORDEN
-// =====================================================
 
 model OrderItem {
   id        Int      @id @default(autoincrement())
@@ -117,16 +84,11 @@ model OrderItem {
   productId Int?
   quantity  Int
   unitPrice Decimal? @db.Decimal(10, 2)
-
-  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product? @relation(fields: [productId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id])
 
   @@map("OrderItem")
 }
-
-// =====================================================
-// OPORTUNIDADES COMERCIALES
-// =====================================================
 
 model Opportunity {
   id             Int      @id @default(autoincrement())
@@ -137,11 +99,30 @@ model Opportunity {
   priority       Priority @default(Media)
   createdAt      DateTime @default(now())
   notes          String?
-
-  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  assignedUser Profile? @relation(fields: [assignedUserId], references: [id])
+  assignedUser   Profile? @relation(fields: [assignedUserId], references: [id])
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@map("Opportunity")
+}
+
+model AiRecommendation {
+  id                   Int      @id @default(autoincrement())
+  customerId           Int
+  recommendedProductId Int?
+  score                Decimal? @db.Decimal(5, 2)
+  recommendationText   String?
+  nextAction           String?
+  generatedAt          DateTime @default(now())
+  customer             Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recommendedProduct   Product? @relation(fields: [recommendedProductId], references: [id])
+
+  @@map("AiRecommendation")
+}
+
+enum Role {
+  admin
+  vendedor
+  gerente
 }
 
 enum Stage {
@@ -156,23 +137,4 @@ enum Priority {
   Alta
   Media
   Baja
-}
-
-// =====================================================
-// RECOMENDACIONES IA
-// =====================================================
-
-model AiRecommendation {
-  id                   Int      @id @default(autoincrement())
-  customerId           Int
-  recommendedProductId Int?
-  score                Decimal? @db.Decimal(5, 2)
-  recommendationText   String?
-  nextAction           String?
-  generatedAt          DateTime @default(now())
-
-  customer           Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  recommendedProduct Product? @relation(fields: [recommendedProductId], references: [id])
-
-  @@map("AiRecommendation")
 }
