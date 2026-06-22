@@ -1,0 +1,12 @@
+<svg width="300" height="80" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icono -->
+  <rect x="0" y="0" width="80" height="80" rx="18" fill="#4F46E5"/>
+  <rect x="16" y="14" width="9" height="52" rx="3" fill="white"/>
+  <polygon points="16,14 25,14 51,66 42,66" fill="white"/>
+  <rect x="42" y="14" width="9" height="52" rx="3" fill="white"/>
+  <circle cx="70" cy="10" r="5" fill="#818CF8"/>
+  <circle cx="80" cy="2" r="3" fill="#C7D2FE"/>
+  <!-- Texto -->
+  <text x="95" y="46" font-family="Arial, sans-serif" font-size="34" font-weight="600" fill="#0F172A" letter-spacing="-1">Nova<tspan fill="#4F46E5">Retail</tspan></text>
+  <text x="96" y="66" font-family="Arial, sans-serif" font-size="11" font-weight="400" fill="#94A3B8" letter-spacing="3">CRM INTELIGENTE</text>
+</svg>

@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, Users, Bot, ChevronRight, Zap, Package, TrendingUp, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, ChevronRight, Zap, Package, TrendingUp, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase-client'
 
 const navItems = [
@@ -35,13 +36,17 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-slate-900 text-white flex flex-col h-full shrink-0">
       <div className="px-6 py-5 border-b border-slate-700">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-            <Bot size={18} className="text-white" />
-          </div>
+        <div className="flex items-center gap-2.5">
+          <Image
+            src="/novaretail-icon.svg"
+            alt="NovaRetail"
+            width={34}
+            height={34}
+            className="rounded-lg"
+          />
           <div>
-            <p className="text-sm font-bold text-white leading-none">Copiloto IA</p>
-            <p className="text-xs text-slate-400 mt-0.5">CRM Inteligente</p>
+            <p className="text-sm font-bold text-white leading-none">NovaRetail</p>
+            <p className="text-xs text-slate-400 mt-0.5">Copiloto Comercial IA</p>
           </div>
         </div>
       </div>
@@ -71,9 +76,9 @@ export default function Sidebar() {
         <div className="bg-indigo-900/50 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
             <Zap size={14} className="text-indigo-400" />
-            <span className="text-xs font-semibold text-indigo-300">NovaRetail</span>
+            <span className="text-xs font-semibold text-indigo-300">IA activada</span>
           </div>
-          <p className="text-xs text-slate-400">IA activada</p>
+          <p className="text-xs text-slate-400">Anthropic Claude AI</p>
         </div>
 
         {email && (
