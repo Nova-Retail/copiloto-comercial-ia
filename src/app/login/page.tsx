@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase-client'
-import { Briefcase, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react'
+import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -39,13 +40,18 @@ export default function LoginPage() {
           <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-600 rounded-full blur-3xl" />
         </div>
 
+        {/* Logo NovaRetail */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center">
-            <Briefcase size={20} className="text-white" />
-          </div>
+          <Image
+            src="/novaretail-icon.svg"
+            alt="NovaRetail"
+            width={44}
+            height={44}
+            className="rounded-xl"
+          />
           <div>
-            <p className="text-white font-bold text-lg leading-none">Copiloto IA</p>
-            <p className="text-indigo-300 text-xs">CRM Inteligente</p>
+            <p className="text-white font-bold text-lg leading-none">NovaRetail</p>
+            <p className="text-indigo-300 text-xs">Copiloto Comercial IA</p>
           </div>
         </div>
 
@@ -78,11 +84,17 @@ export default function LoginPage() {
       {/* Panel derecho — formulario */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
         <div className="w-full max-w-sm">
+
+          {/* Logo móvil */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <Briefcase size={18} className="text-white" />
-            </div>
-            <p className="font-bold text-gray-900">Copiloto IA</p>
+            <Image
+              src="/novaretail-icon.svg"
+              alt="NovaRetail"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
+            <p className="font-bold text-gray-900">NovaRetail</p>
           </div>
 
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Bienvenido de vuelta</h2>
