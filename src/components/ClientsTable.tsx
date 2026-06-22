@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Client } from '@/types'
 import { calculateScore } from '@/lib/scoring'
-import { Bot, Trash2, X, MapPin, Phone, Mail, Calendar, Tag } from 'lucide-react'
+import { Bot, Trash2, X, MapPin, Phone, Mail, Calendar } from 'lucide-react'
 
 interface Props {
   clients: Client[]
@@ -16,9 +16,31 @@ interface Props {
 
 const freqLabel: Record<string, string> = { HIGH: 'Alta', MEDIUM: 'Media', LOW: 'Baja' }
 const freqColor: Record<string, string> = {
-  HIGH: 'bg-emerald-100 text-emerald-700',
+  HIGH:   'bg-emerald-100 text-emerald-700',
   MEDIUM: 'bg-amber-100 text-amber-700',
-  LOW: 'bg-red-100 text-red-700',
+  LOW:    'bg-red-100 text-red-700',
+}
+
+const segmentConfig: Record<string, { bg: string; text: string; dot: string }> = {
+  CHAMPION:        { bg: 'bg-violet-100', text: 'text-violet-700', dot: 'bg-violet-500' },
+  LOYAL:           { bg: 'bg-indigo-100', text: 'text-indigo-700', dot: 'bg-indigo-500' },
+  VIP:             { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
+  ACTIVE:          { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' },
+  AT_RISK:         { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' },
+  NEEDS_ATTENTION: { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
+  INACTIVE:        { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
+  LOST:            { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
+}
+
+function SegmentBadge({ segment }: { segment?: string | null }) {
+  if (!segment) return null
+  const cfg = segmentConfig[segment] ?? { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' }
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.bg} ${cfg.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+      {segment}
+    </span>
+  )
 }
 
 export default function ClientsTable({ clients, loading, total, selectedId, onSelect, onDelete }: Props) {
@@ -41,7 +63,7 @@ export default function ClientsTable({ clients, loading, total, selectedId, onSe
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-900">
-            {total} clientes registrados
+            {total.toLocaleString()} clientes registrados
           </h2>
           <span className="text-xs text-gray-400 hidden sm:block">
             Haz clic en el nombre para ver detalle · Analizar para el Copiloto IA
@@ -55,8 +77,8 @@ export default function ClientsTable({ clients, loading, total, selectedId, onSe
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Cliente</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Frecuencia</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Días sin compra</th>
-                {/* <th className="px-5 py-3 text-left font-medium whitespace-nowrap hidden xl:table-cell">Interés</th> */}
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Score</th>
+                <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Segmento IA</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap">Copiloto</th>
                 <th className="px-5 py-3 text-left font-medium whitespace-nowrap"></th>
               </tr>
@@ -89,13 +111,13 @@ export default function ClientsTable({ clients, loading, total, selectedId, onSe
                       </span>
                     </td>
                     <td className="px-5 py-4 text-gray-600 whitespace-nowrap">{client.lastPurchase}d</td>
-                    {/* <td className="px-5 py-4 text-gray-600 hidden xl:table-cell">
-                      <span className="truncate block max-w-[180px]">{client.interest}</span>
-                    </td> */}
                     <td className="px-5 py-4">
                       <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap ${bgColor} ${color}`}>
                         {label} · {score}
                       </span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <SegmentBadge segment={client.segment} />
                     </td>
                     <td className="px-5 py-4">
                       <button
@@ -146,13 +168,14 @@ export default function ClientsTable({ clients, loading, total, selectedId, onSe
               {(() => {
                 const { score, label, bgColor, color } = calculateScore(detailClient.frequency, detailClient.lastPurchase)
                 return (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <span className={`text-sm font-semibold px-3 py-1.5 rounded-full border ${bgColor} ${color}`}>
                       {label} · {score}/100
                     </span>
                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${freqColor[detailClient.frequency]}`}>
                       Frecuencia {freqLabel[detailClient.frequency]}
                     </span>
+                    {detailClient.segment && <SegmentBadge segment={detailClient.segment} />}
                   </div>
                 )
               })()}
@@ -175,12 +198,6 @@ export default function ClientsTable({ clients, loading, total, selectedId, onSe
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <MapPin size={15} className="text-gray-400 shrink-0" />
                   <span>{[detailClient.city, detailClient.country].filter(Boolean).join(', ')}</span>
-                </div>
-              )}
-              {detailClient.segment && (
-                <div className="flex items-center gap-3 text-sm text-gray-600">
-                  <Tag size={15} className="text-gray-400 shrink-0" />
-                  <span className="capitalize">{detailClient.segment}</span>
                 </div>
               )}
               <div className="flex items-center gap-3 text-sm text-gray-600">

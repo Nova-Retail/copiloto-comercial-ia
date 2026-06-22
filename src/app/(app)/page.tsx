@@ -15,6 +15,7 @@ type RecentClient = Awaited<ReturnType<typeof prisma.customer.findMany>>[number]
 async function getStats() {
   const [
     totalClientes,
+    totalOrdenes,
     clientesPorFrecuencia,
     clientesPorPais,
     clientesPorMes,
@@ -23,6 +24,7 @@ async function getStats() {
     recentClients,
   ] = await Promise.all([
     prisma.customer.count(),
+    prisma.order.count(),
     prisma.customer.groupBy({
       by: ['frequency'],
       _count: { frequency: true },
@@ -55,9 +57,9 @@ async function getStats() {
     (clientesPorFrecuencia as FreqGroup[]).map(f => [f.frequency, f._count.frequency])
   )
 
-  const high = freqMap['HIGH'] ?? 0
+  const high   = freqMap['HIGH']   ?? 0
   const medium = freqMap['MEDIUM'] ?? 0
-  const low = freqMap['LOW'] ?? 0
+  const low    = freqMap['LOW']    ?? 0
 
   const avgScore = totalClientes > 0
     ? Math.round((high * 100 + medium * 80 + low * 50) / totalClientes)
@@ -65,6 +67,7 @@ async function getStats() {
 
   return {
     totalClientes,
+    totalOrdenes,
     highFrequency: high,
     avgScore,
     activos: high,
@@ -81,9 +84,9 @@ async function getStats() {
       total: Number(m.total),
     })),
     segmentos: [
-      { name: 'Activos', value: high, color: '#10b981' },
+      { name: 'Activos',   value: high,   color: '#10b981' },
       { name: 'En riesgo', value: medium, color: '#f59e0b' },
-      { name: 'Perdidos', value: low, color: '#ef4444' },
+      { name: 'Perdidos',  value: low,    color: '#ef4444' },
     ],
     recentClients,
   }
@@ -113,12 +116,14 @@ export default async function DashboardPage() {
         activos={stats.activos}
         enRiesgo={stats.enRiesgo}
         perdidos={stats.perdidos}
+        totalOrdenes={stats.totalOrdenes}
       />
 
       <DashboardCharts
         segmentos={stats.segmentos}
         clientesPorPais={stats.clientesPorPais}
         clientesPorMes={stats.clientesPorMes}
+        totalClientes={stats.totalClientes}
       />
 
       <div className="mt-6 bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -132,7 +137,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
         <div className="divide-y divide-gray-50">
-        {stats.recentClients.map((client: RecentClient) => {
+          {stats.recentClients.map((client: RecentClient) => {
             const { score, label, bgColor, color } = calculateScore(
               client.frequency,
               client.lastPurchase
