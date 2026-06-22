@@ -1,10 +1,10 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 
 function getClient() {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  return new OpenAI({ apiKey });
+  return new Anthropic({ apiKey });
 }
 
 export async function POST(req: Request) {
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     if (!client) {
       return NextResponse.json(
-        { error: "OPENAI_API_KEY no configurada" },
+        { error: "ANTHROPIC_API_KEY no configurada" },
         { status: 503 }
       );
     }
@@ -34,12 +34,12 @@ Genera:
 4. Mensaje WhatsApp.
 5. Email comercial.
 
-Responde únicamente con JSON válido.
+Responde unicamente con JSON valido.
 
 No uses markdown.
 No uses \`\`\`json.
 No agregues explicaciones.
-No agregues texto antes o después del JSON.
+No agregues texto antes o despues del JSON.
 El JSON debe ser parseable por JSON.parse().
 
 Formato de respuesta:
@@ -51,20 +51,27 @@ Formato de respuesta:
 }
 `;
 
-    const response = await client.chat.completions.create({
-      model: "gpt-4.1-mini",
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 1000,
       messages: [
         {
           role: "user",
           content: prompt,
         },
       ],
-      temperature: 0.7,
     });
 
-    const content = response.choices[0].message.content;
+    const content =
+      response.content[0].type === "text" ? response.content[0].text : "{}";
 
-    return NextResponse.json(JSON.parse(content || "{}"));
+    // Limpiar posibles backticks o texto extra que el modelo pudiera agregar
+    const cleaned = content
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return NextResponse.json(JSON.parse(cleaned || "{}"));
   } catch (error) {
     console.error(error);
 
