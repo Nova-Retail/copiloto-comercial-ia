@@ -179,6 +179,9 @@ export default function AICopilot({ client, onClose }: Props) {
           <div className="border border-gray-200 rounded-lg px-3 py-3">
             <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Acción recomendada</p>
             <p className="text-sm font-semibold text-indigo-700">{analysis.recommended_action}</p>
+            {analysis.action_description && (
+              <p className="text-xs text-gray-500 mt-1">{analysis.action_description}</p>
+            )}
             {analysis.cross_sell_product && (
               <>
                 <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-2 mb-1">Venta cruzada sugerida</p>
